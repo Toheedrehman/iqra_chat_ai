@@ -1,8 +1,6 @@
 import streamlit as st
-import faiss
-import numpy as np
-from sentence_transformers import SentenceTransformer
 from google import genai
+import json
 
 # -------------------
 # Page config
@@ -10,7 +8,7 @@ from google import genai
 st.set_page_config(page_title="Chat AI Toheed Rehman", layout="centered")
 
 # -------------------
-# SIDEBAR
+# Sidebar
 # -------------------
 with st.sidebar:
     st.markdown("##  Chat AI")
@@ -54,14 +52,14 @@ body {
     background: linear-gradient(90deg,#0b5ed7,#198754);
     color: white;
     padding: 15px;
-    border-radius: 12px 12px 0 0;
+    border-radius: 25px 25px 0 0;
 }
 
 /* CHAT BOX */
 .chat-box {
     max-width: 750px;
     margin: auto;
-    height: 60vh;
+    height: 50vh;
     overflow-y: auto;
     padding: 15px;
     background: #ffffff;
@@ -145,32 +143,17 @@ body {
     background: #084298;
 }
 
-div[data-testid="stFormSubmitButton"] button {
-    margin-top: 25px !important;
-    height: 36px !important;
-    padding: 0 14px;
-    font-weight: 600;
+.stMainBlockContainer {
+    width: 50% !important;
+    max-width: 750px !important;
+    margin: auto !important;
+    padding: 1rem !important;
+    box-sizing: border-box;
+    margin-top: 20px !important;
 }
-
-div[data-baseweb="input"] input {
-    height: 36px !important;
-}
-
-@media (max-width: 767px) {
-    .input-box {
-        flex-direction: row !important;
-        gap: 6px;
-    }
-
-    div[data-baseweb="input"] input {
-        width: auto !important;
-        flex: 1;
-    }
-
-    div[data-testid="stFormSubmitButton"] button {
-        width: auto !important;
-        margin-top: 0 !important;
-    }
+            
+            .st-emotion-cache-5qfegl {
+    margin-top: 27px !important;  /* moves the element down */
 }
 
 /* FOOTER */
@@ -180,6 +163,45 @@ div[data-baseweb="input"] input {
     padding: 15px;
     font-size: 0.9em;
 }
+            
+
+ Mobile Responsive
+-------------------- */
+@media (max-width: 767px) {
+
+    .stMainBlockContainer {
+        width: 90% !important;
+        margin-top: 10px !important;
+        padding: 0.5rem !important;
+    }
+
+    .chat-box {
+        height: 40vh;
+        padding: 10px;
+    }
+
+    .input-box {
+        width: 90% !important;
+        flex-direction: column !important;
+        gap: 8px;
+    }
+
+    .input-box input[type="text"] {
+        width: 100% !important;
+        border-radius: 8px !important;
+    }
+
+    .input-box button {
+        width: 100% !important;
+        border-radius: 8px !important;
+    }
+
+    .st-emotion-cache-5qfegl {
+        margin-top: 20px !important; /* smaller spacing on mobile */
+    }
+}
+
+
 </style>
 
 <script>
@@ -191,36 +213,14 @@ setTimeout(() => {
 """, unsafe_allow_html=True)
 
 # -------------------
-# NAVBAR
-# -------------------
-st.markdown("""
-<div style="
-    width:100%;
-    background: linear-gradient(90deg,#0b5ed7,#198754);
-    padding: 12px 25px;
-    color: white;
-    font-size: 1.1em;
-    font-weight: 600;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 10px;
-    margin-bottom: 15px;
-">
-    <div>🤖 Chat AI</div>
-    <div style="font-size:0.9em;">Personal and Professional AI Assistant</div>
-</div>
-""", unsafe_allow_html=True)
-
-# -------------------
 # Gemini API
 # -------------------
-API_KEY = "AIzaSyBL2lIWVd2ZxJS3sponEwWddYl2GTZe1pI"  # YOUR KEY
+API_KEY = "AIzaSyAE38eZ5HGvH6Ln-AVhu2bhMQMxljeW_xI"  # <-- YOUR API KEY
 MODEL_NAME = "models/gemini-2.5-flash-lite"
 client = genai.Client(api_key=API_KEY)
 
 # -------------------
-# RAG DATA
+# Structured RAG DATA
 # -------------------
 documents = [
     {
@@ -258,67 +258,67 @@ documents = [
             "Faculty of Social Sciences", "Faculty of Arts & Humanities", "Faculty of Law"
         ],
         "notable_alumni": [
-            "Shahid Afridi – Cricketer", "Saba Qamar – Actress", "Ali Rehman Khan – Actor",
-            "Fawad Khan – Actor", "Ali Zafar – Singer/Actor", "Hina Rabbani Khar – Politician",
-            "Samiya Mumtaz – Actress"
-        ]
+            "Ahmed Khan – Entrepreneur",
+            "Fatima Ali – Researcher",
+            "Hassan Sheikh – Engineer",
+            "Aisha Siddiqui – Scientist",
+            "Omar Rehman – Lawyer",
+            "Sara Malik – Academic",
+            "Yusuf Qureshi – Technologist"
+        ],
+        "example_policies": {
+            "admissions_policy": "All applicants must submit certified transcripts and meet minimum program requirements. Late applications may be considered only if seats are available.",
+            "academic_policy": "Students must maintain a minimum GPA of 2.5 for undergraduate programs and 3.0 for graduate programs. Academic dishonesty will result in disciplinary action.",
+            "code_of_conduct": "All students are expected to follow university rules regarding respectful behavior, attendance, and use of campus facilities. Harassment or misconduct is strictly prohibited.",
+            "scholarship_policy": "Scholarships are awarded based on merit, financial need, or special achievements. Students must maintain required academic performance to retain scholarships.",
+            "leave_policy": "Students may request leave for medical or personal reasons. Leaves exceeding two weeks require formal approval from the department head.",
+            "grading_policy": "Grades are awarded according to the official grading scale. Appeals must be submitted within two weeks of receiving the grade.",
+            "attendance_policy": "Students are required to attend at least 75% of lectures and labs per course. Attendance will be recorded and reported to the department. Missing classes without valid reason may affect grades.",
+            "exam_policy": "Students must arrive at least 15 minutes before exams. No electronic devices or unauthorized materials are allowed. Cheating or academic dishonesty will result in a zero grade and possible disciplinary action.",
+            "library_policy": "Library resources must be handled with care. Books must be returned by the due date. Silence must be maintained. Overdue fines will be applied for late returns.",
+            "internship_policy": "All students in applicable programs must complete internships approved by the department. Students must submit reports and evaluations. Failure to complete the internship may delay graduation.",
+            "example_rules": [
+                "No use of mobile phones during lectures or exams.",
+                "Proper university ID must be displayed on campus at all times.",
+                "Smoking and alcohol are strictly prohibited on campus.",
+                "Students must respect faculty, staff, and fellow students.",
+                "Late submission of assignments will incur penalties unless prior approval is obtained.",
+                "Unauthorized access to university facilities or labs is forbidden.",
+                "Cheating, plagiarism, or academic dishonesty will result in disciplinary action.",
+                "Students must follow safety guidelines in labs and workshops.",
+                "Campus facilities must be used responsibly and kept clean.",
+                "All official communications must be via university email accounts."
+            ]
+        }
     }
 ]
 
 # -------------------
-# LOAD FAISS INDEX
+# Gemini LLM query function
 # -------------------
-@st.cache_resource
-def load_index():
-    embedder = SentenceTransformer("all-MiniLM-L6-v2")
-    # Flatten documents to text strings for embeddings
-    doc_texts = []
-    for doc in documents:
-        text = f"{doc['university']} ({doc['founded']})\nType: {doc['type']}\nCampuses: {', '.join(doc['campuses'])}\n"
-        text += f"Departments: {', '.join([d['name'] for d in doc['departments']])}\n"
-        text += f"Faculties: {', '.join(doc['faculties'])}\n"
-        text += f"Alumni: {', '.join(doc['notable_alumni'])}\n"
-        doc_texts.append(text)
-    emb = embedder.encode(doc_texts)
-    index = faiss.IndexFlatL2(emb.shape[1])
-    index.add(np.array(emb))
-    return embedder, index, doc_texts
-
-embedder, index, doc_texts = load_index()
-
-# -------------------
-# RAG QUERY FUNCTION
-# -------------------
-def ask_gemini_rag(q, k=2):
-    q_emb = embedder.encode([q])
-    D, I = index.search(np.array(q_emb), k)
-    
-    # Gather top-k relevant documents
-    retrieved_texts = []
-    for i in I[0]:
-        if i < len(doc_texts):
-            retrieved_texts.append(doc_texts[i])
-    
-    # Fallback if nothing retrieved
-    if not retrieved_texts:
-        retrieved_texts = doc_texts
-    
-    context = "\n\n".join(retrieved_texts)
-    
+def ask_gemini_llm(q):
+    """
+    Ask the Gemini LLM directly using structured documents as context.
+    """
+    context_json = json.dumps(documents, indent=2)
     prompt = f"""
 You are a personal and professional AI assistant.
-Answer the user's question based ONLY on the following context:
+Answer the user's question based ONLY on the following JSON context about Iqra University:
 
 CONTEXT:
-{context}
+{context_json}
 
 QUESTION:
 {q}
 
-Provide a clear, professional answer using only the context.
+Provide a clear and concise answer. 
+If the answer is not in the context, respond: "I am sorry, but the provided context does not contain information about that."
 """
     try:
-        r = client.models.generate_content(model=MODEL_NAME, contents=prompt)
+        r = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=prompt
+        )
         return r.text
     except Exception as e:
         return f"Error: {e}"
@@ -342,7 +342,7 @@ for c in st.session_state.chat_history:
 
 st.markdown(f'<div class="chat-box">{msgs}</div>', unsafe_allow_html=True)
 
-# Input
+# Input area
 st.markdown('<div class="input-area">', unsafe_allow_html=True)
 with st.form("chat", clear_on_submit=True):
     col1, col2 = st.columns([5,1])
@@ -354,7 +354,7 @@ with st.form("chat", clear_on_submit=True):
     if send and q:
         st.session_state.chat_history.append({
             "user": q,
-            "ai": ask_gemini_rag(q)
+            "ai": ask_gemini_llm(q)
         })
         st.rerun()
 st.markdown('</div>', unsafe_allow_html=True)
